@@ -1,0 +1,84 @@
+Aksian Team Guide: How Our Tech Stack Works
+This is the master guide for how the Aksian thrift store operates. We are using a "Serverless" architecture. This means we don't rent servers by the month. Instead, our code only runs—and we only pay—when a customer is actively using the site. If the site is empty, our cost is ₹0.
+
+The system is broken down into 5 main phases:
+
+Phase 1: The Storefront (What the Customer Sees)
+Owned by: Frontend Team
+
+The Tech: Next.js hosted on Vercel.
+
+How it works: When a user visits aksian.in, Vercel delivers the website from a server physically located in India (a CDN). This makes the site load almost instantly.
+
+The Two Halves:
+
+Customer View: The beautiful catalog, shopping cart, and checkout pages.
+
+Admin View (/admin): A hidden page just for the three founders to add new clothes, see orders, and print shipping labels. It is locked down so only we can access it.
+
+Frontend Analytics (PostHog): The frontend code includes a tracker. Whenever a user clicks a photo, adds an item to their cart, or starts typing their address, PostHog records it. This lets us see where people get stuck.
+
+Phase 2: The Engine Room (The Backend)
+Owned by: Backend Team
+
+The Tech: Python (FastAPI) hosted on Google Cloud Run (Mumbai).
+
+How it works: This is the brain. It waits for the Next.js frontend to ask it to do something (like "calculate shipping" or "lock this item").
+
+The "Scale-to-Zero" Magic: If it's 4:00 AM and no one is shopping, Google turns this brain completely off. Cost = ₹0. If we go viral on Instagram and 10,000 people visit at once, Google instantly duplicates our backend into hundreds of copies to handle the traffic without crashing.
+
+Critical Rule 1 (Inventory Locking): Because every vintage item is 1-of-1, two people cannot buy it at once. When a user clicks "Checkout," FastAPI locks that item in the database for 10 minutes. If anyone else tries to buy it, it says "Reserved."
+
+Critical Rule 2 (Idempotency): This is a fancy word for "don't charge twice." When a payment comes through, the backend checks the database to ensure we haven't already processed this exact order ID.
+
+Phase 3: The Vault (Data & Security)
+Shared by: Full Team
+
+The Tech: Supabase (PostgreSQL Database, Auth, and Storage).
+
+The Database: Stores our text data: Products (Name, Price, Status), Orders (Who bought what), and Users.
+
+The Storage: Stores the heavy, high-resolution photos of the vintage clothes. Next.js pulls the images directly from here.
+
+Authentication (Auth): Handles logins. When a user creates an account, Supabase gives them a secure token.
+
+The Security Shield (RLS & PgBouncer): * RLS (Row Level Security): Ensures a logged-in user can only see their own orders, no one else's.
+
+PgBouncer: A "waiting room" for the database. If we get a massive traffic spike, it lines up the database requests neatly so the database doesn't crash under pressure.
+
+Phase 4: The Real World (Money & Logistics)
+Managed by: Backend APIs
+
+The Money (Razorpay): The frontend securely hands the user over to Razorpay to enter their UPI or Card details. Once the payment is successful, Razorpay sends a secure, encrypted message (a "Webhook") to our FastAPI backend saying, "The money is in the bank."
+
+The Logistics (Shiprocket API): 1. Before checkout, FastAPI asks Shiprocket how much shipping costs based on the user's Pincode.
+2. After Razorpay confirms the payment, FastAPI tells Shiprocket to generate an Airway Bill (AWB) tracking number.
+3. The backend saves this AWB in Supabase so the customer can track their jacket.
+
+Phase 5: The "Analyze" Engine (Growing the Business)
+Used by: The Founders
+
+The Tech: PostHog (Product Analytics).
+
+Why it's in the Frontend AND Backend:
+
+The frontend sends behavior (e.g., "100 people added the Y2K jacket to their cart").
+
+The backend sends truth (e.g., "Only 2 people actually paid for it").
+
+The Secret Weapon (PostHog.identify): When a user is browsing anonymously, PostHog watches them. The moment they log into Supabase, we link their anonymous clicks to their real email address. This lets us see a specific user's entire journey and email them if they abandon their cart.
+
+Summary of How a Purchase Flows:
+User clicks jacket on Next.js (PostHog tracks the click).
+
+User clicks checkout. Next.js asks FastAPI to lock the item.
+
+FastAPI updates Supabase to RESERVED for 10 minutes.
+
+User pays via Razorpay.
+
+Razorpay sends a Webhook to FastAPI.
+
+FastAPI marks item SOLD in Supabase, tells Shiprocket to generate a tracking number, and tells PostHog that revenue was officially generated.
+
+Founders open the /admin panel, print the Shiprocket label, and hand the package to the courier.

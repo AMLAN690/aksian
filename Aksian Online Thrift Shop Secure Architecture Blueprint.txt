@@ -1,0 +1,126 @@
+Aksian Online Thrift Shop: Secure Architecture Blueprint
+This document outlines the complete serverless, India-optimized technology stack for Aksian. It incorporates the "scale-to-zero" cost strategy, the automated fulfillment pipeline, deep product analytics, and enterprise-grade security protocols necessary to protect the business.
+
+🗺️ System Architecture Map
+Plaintext
+=============================================================================
+             AKSIAN - FULL SYSTEM ARCHITECTURE & SECURITY MAP
+=============================================================================
+
+[ 1. FRONTEND ] (Next.js Hosted on Vercel CDN - India Region)
+  │
+  ├─ Customer UI (aksian.in) ───────▶ Browsing, Cart, Checkout
+  │    ├─ [ Analytics ] ────────────▶ PostHog JS SDK (Behavior, Heatmaps)
+  │    └─ 🛡️ Security ──────────────▶ CSP Headers, Safe Env Vars
+  │
+  └─ Admin Panel (aksian.in/admin) ─▶ Inventory Management & Fulfillment
+       └─ 🛡️ Security ──────────────▶ Role Protected via Supabase Auth
+
+
+           │ (HTTPS API Requests)
+           ▼
+
+[ 2. CLOUD INFRASTRUCTURE ] (Google Cloud Run - Mumbai: asia-south1)
+  │
+  ├─ State: IDLE ───────────────────▶ 0 Containers = ₹0 Cost
+  └─ State: ACTIVE ─────────────────▶ Millisecond Auto-Scaling (FastAPI)
+       │
+       ├─ [ Logic: Lock ] ──────────▶ Atomic DB lock for 10 mins
+       ├─ [ Logic: Idempotency ] ───▶ Prevents double-processing orders
+       ├─ [ Analytics ] ────────────▶ PostHog Python SDK (Factual Revenue)
+       │
+       └─ 🛡️ Security ──────────────▶ Webhook HMAC Verification, Pydantic, 
+                                      CORS, GCP Secret Manager
+
+
+           │ (DB Queries via PgBouncer Connection Pool)
+           ▼
+
+[ 3. DATA TIER ] (Supabase PostgreSQL - Mumbai: asia-south1)
+  │
+  ├─ Auth     ─▶ Secures APIs, triggers `PostHog.identify()`
+  ├─ Database ─▶ Tables: Products (Status), Orders (AWB), Users
+  ├─ Storage  ─▶ Hosts high-resolution vintage clothing photos
+  │
+  └─ 🛡️ Security ──────────────▶ Row Level Security (RLS) Policies
+
+
+=============================================================================
+                      EXTERNAL INTEGRATIONS & ANALYTICS
+=============================================================================
+
+[ 4. PAYMENTS & LOGISTICS ]
+  ├─ RAZORPAY   ◀─▶ UPI/Cards, sends signed HMAC Webhooks to backend
+  └─ SHIPROCKET ◀─▶ Pincode rates, AWB generation, automated pickups
+
+[ 5. THE "ANALYZE" ENGINE ]
+  ├─ POSTHOG    ◀─▶ Visualizes Funnels, Session Replays, Final Revenue
+  └─ GCP LOGS   ◀─▶ Monitors server health, crashes, and API latency
+=============================================================================
+🏗️ Detailed Component & Security Breakdown
+1. The Frontend Layer (Next.js & Vercel)
+This layer handles all user interactions, SEO, and the protected admin dashboard.
+
+Architecture:
+
+Deployed on Vercel for Edge CDN caching across Indian cities (ensuring fast image and page loads).
+
+Split into a public customer storefront and a protected /admin route.
+
+Analytics: PostHog JS SDK installed to capture client-side events (item_viewed, added_to_cart), run A/B tests, and record anonymous session replays.
+
+🛡️ Security Defenses:
+
+Strict Environment Variables: Only safe, public variables are prefixed with NEXT_PUBLIC_. Critical API keys (Supabase Service Role, Razorpay Secret) are never exposed to the frontend codebase.
+
+Content Security Policy (CSP): HTTP headers are configured to strictly define which domains can load scripts and images (e.g., only allowing images from *.supabase.co and scripts from *.posthog.com). This mitigates Cross-Site Scripting (XSS) attacks.
+
+2. The Backend Engine (Python FastAPI & Cloud Run)
+The core business logic, API endpoints, and communication hub.
+
+Architecture:
+
+Containerized using Docker and deployed to Google Cloud Run (Mumbai).
+
+Scales to zero when idle to maintain ₹0 baseline costs.
+
+Executes the 1-of-1 Inventory Lock (10-minute hold) and the Webhook Idempotency check.
+
+Analytics: PostHog Python SDK captures immutable server-side events, specifically revenue_generated triggered directly by payment webhooks.
+
+🛡️ Security Defenses:
+
+HMAC Webhook Verification: The most critical financial safeguard. The backend mathematically verifies Razorpay's cryptographic signature before marking any order as paid.
+
+Pydantic Input Validation: Every incoming API payload is strictly typed and validated. Malicious inputs (like SQL injection attempts in a pincode field) are automatically rejected before reaching the database.
+
+CORS Restrictions: Cross-Origin Resource Sharing is locked down to only accept requests originating from https://aksian.in.
+
+GCP Secret Manager: API keys are injected at runtime into the Cloud Run container. They are never hardcoded in GitHub or the Dockerfile.
+
+3. The Data Tier (Supabase)
+The single source of truth for the business, managing users, inventory, and media.
+
+Architecture:
+
+Hosted in the AWS Mumbai region via Supabase.
+
+Uses PgBouncer connection pooling to ensure database stability when Cloud Run rapidly spins up dozens of backend containers during a traffic spike.
+
+Auth module links directly to PostHog via identify() to merge anonymous and logged-in user data.
+
+🛡️ Security Defenses:
+
+Row Level Security (RLS): This is the ultimate database shield. SQL policies enforce that users can only SELECT or UPDATE their own data. Even if an API endpoint is compromised, the database will refuse to return another user's order history.
+
+Role-Based Access Control (RBAC): Supabase Auth issues custom JWTs containing roles (admin vs customer). The backend and frontend explicitly check these roles before granting access to inventory management functions.
+
+4. External Services (Razorpay & Shiprocket)
+Razorpay: Handles localized Indian payment methods (UPI, Netbanking). Communicates back to the system exclusively through secured, signed webhooks.
+
+Shiprocket: Called dynamically by the backend to calculate pre-checkout shipping rates based on pincodes, and automatically generates AWB numbers and schedules courier pickups after a successful payment.
+
+5. Monitoring & Observability
+Google Cloud Operations: Collects system-level metrics (CPU, memory, latency) and backend error logs to alert the team of any technical failures.
+
+PostHog: Acts as the business health monitor, combining frontend behavioral data with backend financial data to provide a complete view of the conversion funnel.

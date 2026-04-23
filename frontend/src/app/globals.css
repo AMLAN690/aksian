@@ -1,0 +1,226 @@
+/* ============================================================
+   AKSIAN — Global Stylesheet
+   Tailwind CSS v4 + Brand Design Tokens
+   Adapted from Chrome Industries design system for thrift
+   ============================================================ */
+
+@import "tailwindcss";
+
+/* ── Brand Theme Tokens ──────────────────────────────────────── */
+@theme {
+  /* Brand Colors — Royal Blue & Tussar Silk Gold (Assamese Gamusa) */
+  --color-brand-bg: #F2E6C9;
+  --color-brand-surface: #EAD9B3;
+  --color-brand-text: #1A1A1A;
+  --color-brand-dark: #0F2847;
+  --color-brand-accent: #D4A843;
+  --color-brand-accent-light: #E0BE63;
+  --color-brand-accent-dark: #B8922E;
+  --color-brand-muted: #6B6B6B;
+  --color-brand-border: #DDC99A;
+  --color-brand-border-light: #EBE0C8;
+  --color-brand-sale: #D92B2B;
+  --color-brand-sale-dark: #B52323;
+  --color-brand-highlight: #D4A843;
+
+  /* Header / Nav — Deep Royal Blue */
+  --color-brand-header: #1B3A6B;
+  --color-brand-header-dark: #122A50;
+  --color-brand-header-light: #264D8A;
+
+  /* Font Families */
+  --font-heading: var(--font-space-grotesk), "Space Grotesk", sans-serif;
+  --font-body: var(--font-inter), "Inter", sans-serif;
+
+  /* Border Radius — sharp/brutalist aesthetic */
+  --radius-sharp: 0px;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+
+  /* Shadows — subtle, premium */
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-elevated: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-overlay: 0 12px 40px rgba(0, 0, 0, 0.12);
+
+  /* Container */
+  --container-max: 1280px;
+
+  /* Custom Animations */
+  --animate-marquee: marquee 25s linear infinite;
+  --animate-slide-in-right: slide-in-right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  --animate-slide-in-left: slide-in-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Keyframes ───────────────────────────────────────────────── */
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes slide-in-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes slide-in-left {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+/* ── Global Reset & Base Styles ──────────────────────────────── */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border-radius: 0 !important; /* enforce brutalist flat aesthetic */
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--color-brand-text);
+  background-color: var(--color-brand-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+/* ── Typography Defaults ─────────────────────────────────────── */
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--color-brand-text);
+}
+
+p {
+  line-height: 1.6;
+}
+
+/* ── Element Resets ──────────────────────────────────────────── */
+
+ul, ol {
+  list-style: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+img, video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+}
+
+input, textarea, select {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* ── Focus Styles (Accessibility) ────────────────────────────── */
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--color-brand-accent);
+  outline-offset: 2px;
+}
+
+/* ── Selection ───────────────────────────────────────────────── */
+
+::selection {
+  background-color: var(--color-brand-accent);
+  color: #FFFFFF;
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-brand-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-brand-border);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand-muted);
+}
+
+/* ── Nav Link Hover Underline ────────────────────────────────── */
+
+.nav-link-hover {
+  position: relative;
+}
+
+.nav-link-hover::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0;
+  height: 1px;
+  background: currentColor;
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-link-hover:hover::after {
+  width: 100%;
+}
+
+/* ── Container Utility ───────────────────────────────────────── */
+
+.container-aksian {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+@media (max-width: 640px) {
+  .container-aksian {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+/* ── Body scroll lock (for drawers) ──────────────────────────── */
+
+body.drawer-open {
+  overflow: hidden;
+}
