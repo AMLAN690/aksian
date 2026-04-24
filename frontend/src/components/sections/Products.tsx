@@ -1,9 +1,33 @@
-/*
- * Products Section
- * =================
- * Homepage featured products grid.
- * Cart logic is handled inside ProductCard via Zustand — no
- * callback prop wiring needed here.
+/**
+ * ==========================================
+ * FILE SUMMARY: src/components/sections/Products.tsx
+ * ==========================================
+ * Purpose: 
+ *   The "New Drops" featured products section for the homepage. Renders a section header 
+ *   and the `ProductGrid` carousel.
+ *
+ * Connections:
+ *   - Rendered on the homepage (`app/page.tsx`).
+ *   - Passes data into `ProductGrid.tsx`.
+ *
+ * Data Flow:
+ *   - Inputs: None (currently uses hardcoded `FEATURED_PRODUCTS` mock data).
+ *   - Outputs: Renders the `ProductGrid`.
+ *
+ * Risky Areas (Bugs likely here):
+ *   - None.
+ *
+ * Common Mistakes to Avoid:
+ *   - Trying to wire up cart logic here. The `ProductCard` handles its own cart state 
+ *     via Zustand, so this parent component stays clean.
+ *
+ * Performance Considerations:
+ *   - Ensure `FEATURED_PRODUCTS` is eventually replaced by a server-side fetch to keep 
+ *     the client bundle small if the inventory grows large.
+ *
+ * Where to add new features safely:
+ *   - Update the mock data or replace it with a data fetching hook.
+ *   - Modify the "View All" button routing.
  */
 
 import { ProductGrid } from "@/components/product/ProductGrid";

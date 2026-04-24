@@ -1,11 +1,29 @@
-/*
- * AnnouncementBar Component
- * ==========================
- * Top-of-page promotional strip.
- * Desktop: static centered text.
- * Mobile: CSS-only scrolling marquee with duplicated messages.
+/**
+ * ==========================================
+ * FILE SUMMARY: src/components/layout/AnnouncementBar.tsx
+ * ==========================================
+ * Purpose: 
+ *   A promotional banner displayed at the very top of the site. Features static text on desktop 
+ *   and a CSS marquee animation on mobile.
  *
- * Adapted from Chrome Industries' announcement bar pattern.
+ * Connections:
+ *   - Rendered by `Header.tsx`.
+ *
+ * Data Flow:
+ *   - Static configuration array (`MESSAGES`).
+ *
+ * Risky Areas (Bugs likely here):
+ *   - The CSS marquee animation relies on exact duplication of the `MESSAGES` array. Modifying 
+ *     the HTML structure might break the seamless loop.
+ *
+ * Common Mistakes to Avoid:
+ *   - Adding too many messages, which makes the desktop view overflow and breaks the mobile marquee timing.
+ *
+ * Performance Considerations:
+ *   - Marquee uses CSS `animate-marquee` which is highly performant compared to JS-based scrolling.
+ *
+ * Where to add new features safely:
+ *   - Add or remove promotional text in the `MESSAGES` array at the top.
  */
 
 import Link from "next/link";

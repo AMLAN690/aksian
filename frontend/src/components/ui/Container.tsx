@@ -1,8 +1,28 @@
-/*
- * Container Component
- * ====================
- * Reusable wrapper that applies the brand max-width + padding.
- * Replaces raw `.container-aksian` class usage in sections.
+/**
+ * ==========================================
+ * FILE SUMMARY: src/components/ui/Container.tsx
+ * ==========================================
+ * Purpose: 
+ *   A layout utility component that enforces the global maximum width and horizontal padding. 
+ *   Replaces the need to manually apply the `.container-aksian` class everywhere.
+ *
+ * Connections:
+ *   - Used by almost every layout-level component (Headers, Footers, Sections).
+ *
+ * Data Flow:
+ *   - Presentational wrapper.
+ *
+ * Risky Areas (Bugs likely here):
+ *   - None.
+ *
+ * Common Mistakes to Avoid:
+ *   - Nesting `Container`s inside each other, which will double up the horizontal padding.
+ *
+ * Performance Considerations:
+ *   - Very lightweight.
+ *
+ * Where to add new features safely:
+ *   - Adjust the `as` prop union type if you need to render as a specific HTML5 semantic tag.
  */
 
 import { cn } from "@/lib/utils";

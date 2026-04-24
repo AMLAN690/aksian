@@ -1,13 +1,30 @@
-/*
- * Card Component
- * ===============
- * Reusable card with brand styling.
- * Supports optional image, hover lift, and click-through.
+/**
+ * ==========================================
+ * FILE SUMMARY: src/components/ui/Card.tsx
+ * ==========================================
+ * Purpose: 
+ *   A generic, composable card container system. Provides the base structural styling 
+ *   (borders, backgrounds, hover elevations) for displaying content blocks.
  *
- * Variants:
- *   default  — surface bg, subtle border
- *   elevated — card shadow, hover lift
- *   ghost    — transparent bg, border only
+ * Connections:
+ *   - Can be used for blog posts, generic lists, or dashboard UI. 
+ *     (Note: `ProductCard` uses its own custom implementation).
+ *
+ * Data Flow:
+ *   - Presentational wrapper.
+ *
+ * Risky Areas (Bugs likely here):
+ *   - If `onClick` is provided, it applies `role="button"`. Ensure semantic HTML 
+ *     by not nesting `<button>` or `<a>` tags deeply inside a clickable card.
+ *
+ * Common Mistakes to Avoid:
+ *   - Forgetting to import the subcomponents (`CardContent`, `CardImage`) when building complex layouts.
+ *
+ * Performance Considerations:
+ *   - Lightweight. Hover animations are handled via CSS transitions.
+ *
+ * Where to add new features safely:
+ *   - Add new structural sub-components like `CardHeader` or `CardFooter`.
  */
 
 import { cn } from "@/lib/utils";

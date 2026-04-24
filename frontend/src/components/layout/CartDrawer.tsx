@@ -1,16 +1,35 @@
-/*
- * CartDrawer Component — Zustand + Framer Motion
- * =================================================
- * Slide-in cart drawer with full animation suite:
+/**
+ * ==========================================
+ * FILE SUMMARY: src/components/layout/CartDrawer.tsx
+ * ==========================================
+ * Purpose: 
+ *   A slide-in cart drawer component featuring a full suite of animations (Framer Motion). 
+ *   It displays cart items, handles removal, calculates totals, and manages the Razorpay checkout flow.
  *
- *   - Drawer: slide-in from right with spring physics
- *   - Backdrop: fade-in with blur
- *   - Cart items: staggered list entrance
- *   - Remove button: exit animation with layout shift
- *   - "Just added" item: pulse highlight
- *   - Empty state: fade-in with scale
+ * Connections:
+ *   - Uses `useCartStore` for global cart state (items, counts, subtotals).
+ *   - Uses `useRazorpay` hook to trigger the frontend-only payment modal.
+ *   - Rendered globally (usually in `Header.tsx` or layout) to be accessible from anywhere.
  *
- * Wired to useCartStore (Zustand) for all cart state.
+ * Data Flow:
+ *   - Inputs: Consumes global state from `useCartStore`.
+ *   - Outputs: Dispatches actions to `useCartStore` (remove, clear) and `useRazorpay` (checkout).
+ *
+ * Risky Areas (Bugs likely here):
+ *   - The `handleCheckout` function relies heavily on Promise resolution from Razorpay. Unhandled rejections 
+ *     can leave the drawer stuck in a "processing" state.
+ *   - The `useEffect` that locks body scroll might conflict with other modals if not carefully managed.
+ *
+ * Common Mistakes to Avoid:
+ *   - Removing the `<AnimatePresence>` wrappers. They are critical for the exit animations of 
+ *     the drawer itself, individual cart items, and the success/error state transitions.
+ *
+ * Performance Considerations:
+ *   - Extensive use of `framer-motion` layout animations. Keep the cart item count reasonable 
+ *     (which fits the 1-of-1 thrift model) to ensure smooth 60fps animations.
+ *
+ * Where to add new features safely:
+ *   - Add promo code inputs or shipping calculators just above the Subtotal section in the Footer block.
  */
 
 "use client";
@@ -115,6 +134,9 @@ export function CartDrawer() {
   const [paymentResult, setPaymentResult] = useState<PaymentResult>({});
 
   /* Lock body scroll when open */
+  // WHAT IT DOES: Adds a 'drawer-open' class to the body to disable background scrolling while the cart is open.
+  // WHY IT EXISTS: Improves UX by preventing the main page from scrolling when the user interacts with the cart drawer.
+  // WHAT CAN BREAK IF MODIFIED: Removing the cleanup function will permanently lock the body scroll even after closing the drawer.
   useEffect(() => {
     if (isOpen) {
       document.body.classList.add("drawer-open");
@@ -134,6 +156,9 @@ export function CartDrawer() {
   }, [isOpen, closeCart]);
 
   /* Reset payment state when cart closes */
+  // WHAT IT DOES: Resets the checkout flow back to 'idle' with a slight delay when the drawer is closed.
+  // WHY IT EXISTS: Ensures that the next time the cart is opened, the user sees the item list, not an old success/error message. The delay allows exit animations to finish first.
+  // WHAT CAN BREAK IF MODIFIED: Removing the delay might cause the UI to snap abruptly from "Success" to "Cart" while the drawer is still sliding out.
   useEffect(() => {
     if (!isOpen) {
       // Small delay so exit animations play before resetting
@@ -147,6 +172,9 @@ export function CartDrawer() {
 
   /* ── Razorpay handler ──────────────────────────────────── */
 
+  // WHAT IT DOES: Initiates the Razorpay checkout flow, manages loading states, and handles success/error responses.
+  // WHY IT EXISTS: To orchestrate the transition between the cart UI and the external payment gateway.
+  // WHAT CAN BREAK IF MODIFIED: Missing state updates in the `catch` block can cause infinite loading spinners if the API call fails.
   const handleCheckout = async () => {
     if (subtotal <= 0) return;
 

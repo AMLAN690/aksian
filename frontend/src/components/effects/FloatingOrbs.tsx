@@ -1,15 +1,31 @@
-/*
- * FloatingOrbs Effect
- * ====================
- * Soft animated gradient orbs that drift across the viewport.
- * Purely decorative ambient layer — low opacity, GPU-accelerated.
+/**
+ * ==========================================
+ * FILE SUMMARY: src/components/effects/FloatingOrbs.tsx
+ * ==========================================
+ * Purpose: 
+ *   A purely decorative ambient background effect. Renders large, blurred, gently moving 
+ *   color gradients (orbs) using CSS animations.
  *
- * Performance:
- *   - Only 3 orbs (minimal DOM)
- *   - CSS animations only (no JS runtime cost)
- *   - will-change for GPU compositing
- *   - pointer-events: none
- *   - Respects prefers-reduced-motion
+ * Connections:
+ *   - Can be used in specific sections or globally in layouts.
+ *
+ * Data Flow:
+ *   - Static configuration array (`ORBS`).
+ *
+ * Risky Areas (Bugs likely here):
+ *   - None.
+ *
+ * Common Mistakes to Avoid:
+ *   - Adding too many orbs. Radial gradients with large blurs are expensive for the browser 
+ *     to composite. Keep it under 5 orbs.
+ *
+ * Performance Considerations:
+ *   - Uses `will-change: transform` and CSS-only animations to offload work to the GPU.
+ *   - Respects `prefers-reduced-motion` to stop animations for accessibility.
+ *
+ * Where to add new features safely:
+ *   - Add or remove orbs by editing the `ORBS` array.
+ *   - Tweak colors by referencing `COLORS` from the theme.
  */
 
 "use client";

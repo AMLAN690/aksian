@@ -1,15 +1,30 @@
-/*
- * MobileDrawer Component
- * =======================
- * Slide-in navigation drawer from the left on mobile/tablet.
- * Adapted from Chrome Industries' mobile nav drawer pattern.
+/**
+ * ==========================================
+ * FILE SUMMARY: src/components/layout/MobileDrawer.tsx
+ * ==========================================
+ * Purpose: 
+ *   A slide-in navigation drawer for mobile and tablet views. 
+ *   Contains primary navigation links, secondary links (like policies), and social links.
  *
- * Features:
- *   - Slides from left with cubic-bezier easing
- *   - Semi-transparent backdrop overlay
- *   - Full nav links stacked vertically
- *   - Close button at top-right
- *   - Body scroll lock when open
+ * Connections:
+ *   - Triggered by the hamburger menu icon in `Navbar.tsx`.
+ *   - Rendered by the main `Header.tsx` wrapper.
+ *
+ * Data Flow:
+ *   - Inputs: `isOpen` boolean and `onClose` callback passed as props from `Header.tsx`.
+ *   - Outputs: Calls `onClose` when a link is clicked or the backdrop is tapped.
+ *
+ * Risky Areas (Bugs likely here):
+ *   - The body scroll lock `useEffect` must perfectly match the `isOpen` state, or the page will become unscrollable.
+ *
+ * Common Mistakes to Avoid:
+ *   - Forgetting to pass `onClose` to new `<Link>` components, causing the drawer to stay open after navigation.
+ *
+ * Performance Considerations:
+ *   - Uses CSS transitions instead of Framer Motion for lighter weight and better performance on low-end mobile devices.
+ *
+ * Where to add new features safely:
+ *   - Add new links to the `NAV_LINKS` or `SECONDARY_LINKS` arrays at the top of the file.
  */
 
 "use client";
@@ -38,6 +53,9 @@ const SECONDARY_LINKS = [
 
 export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
   /* Lock body scroll when drawer is open */
+  // WHAT IT DOES: Toggles a CSS class on the body to prevent scrolling when the drawer is open.
+  // WHY IT EXISTS: To trap the user's focus inside the drawer and prevent accidental background scrolling on touch devices.
+  // WHAT CAN BREAK IF MODIFIED: Missing the cleanup return function will break scrolling permanently if the component unmounts while open.
   useEffect(() => {
     if (isOpen) {
       document.body.classList.add("drawer-open");

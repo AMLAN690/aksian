@@ -1,3 +1,35 @@
+/**
+ * ==========================================
+ * FILE SUMMARY: src/app/layout.tsx
+ * ==========================================
+ * Purpose: 
+ *   The global root layout for the Next.js application. Defines the HTML structure, 
+ *   loads fonts, injects global styles, sets up SEO metadata, and wraps all pages 
+ *   with the common Header and Footer.
+ *
+ * Connections:
+ *   - Next.js root layout. Applies to every route in the `app` directory.
+ *
+ * Data Flow:
+ *   - Inputs: React `children` representing the active page.
+ *   - Outputs: Full HTML document structure.
+ *
+ * Risky Areas (Bugs likely here):
+ *   - Removing or modifying the `html` or `body` tags can break Next.js routing and styling.
+ *   - Changing font variables here requires matching updates in Tailwind config.
+ *
+ * Common Mistakes to Avoid:
+ *   - Putting client-only logic (like hooks) directly in this server component 
+ *     instead of inside a client-wrapper like `Header.tsx`.
+ *
+ * Performance Considerations:
+ *   - Fonts are automatically optimized via `next/font/google`.
+ *   - The `GamusaBackground` is rendered globally here so it doesn't unmount/remount during client-side navigation.
+ *
+ * Where to add new features safely:
+ *   - Add new global providers (like Analytics or context providers) wrapping the `children`.
+ *   - Update global SEO tags in the `metadata` object.
+ */
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
 import { Header } from "@/components/layout/Header";

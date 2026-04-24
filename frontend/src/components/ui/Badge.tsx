@@ -1,15 +1,28 @@
-/*
- * Badge Component
- * ================
- * Small labels used on product cards for status indicators.
- * Adapted from Chrome Industries' badge system for thrift context.
+/**
+ * ==========================================
+ * FILE SUMMARY: src/components/ui/Badge.tsx
+ * ==========================================
+ * Purpose: 
+ *   Small informational labels used primarily on product cards to indicate status 
+ *   (e.g., "New", "Sold Out", "1 of 1").
  *
- * Variants:
- *   new       — charcoal bg (new arrival)
- *   sale      — red bg (discounted)
- *   oneOfOne  — forest green bg (unique thrift piece)
- *   soldOut   — muted surface bg (unavailable)
- *   condition — light surface bg (condition rating like "9/10")
+ * Connections:
+ *   - Used in `ProductCard.tsx` and product detail pages.
+ *
+ * Data Flow:
+ *   - Purely presentational based on the `variant` prop.
+ *
+ * Risky Areas (Bugs likely here):
+ *   - None.
+ *
+ * Common Mistakes to Avoid:
+ *   - Passing long strings as children. Badges are meant for short, 1-2 word indicators.
+ *
+ * Performance Considerations:
+ *   - Very lightweight.
+ *
+ * Where to add new features safely:
+ *   - Add new color themes to the `variantStyles` object.
  */
 
 import { cn } from "@/lib/utils";

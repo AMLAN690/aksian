@@ -1,18 +1,33 @@
-/*
- * ProductCard Component — Lemkus-inspired + Framer Motion
- * =========================================================
- * Premium, animated product card for AKSIAN's thrift grid.
+/**
+ * ==========================================
+ * FILE SUMMARY: src/components/product/ProductCard.tsx
+ * ==========================================
+ * Purpose: 
+ *   Renders an individual product card with hover animations, size selection, 
+ *   and "Add to Cart" functionality. Features a premium design with Framer Motion.
  *
- * Animations (Framer Motion):
- *   - Card entrance: fade-up with stagger from parent
- *   - Image hover: dual-image crossfade + gentle scale
- *   - Size pill selection: spring scale
- *   - "Add to Cart" button: slide-down entrance
- *   - "Added!" confirmation: brief flash feedback
+ * Connections:
+ *   - Rendered by `ProductGrid.tsx` and collection pages.
+ *   - Dispatches items to `useCartStore`.
  *
- * Cart:
- *   - Wired to useCartStore (Zustand)
- *   - Auto-opens cart drawer on add
+ * Data Flow:
+ *   - Inputs: `Product` object and display configuration props (`priority`, `showSizes`).
+ *   - Outputs: Adds a `CartItem` to the global store on add to cart.
+ *
+ * Risky Areas (Bugs likely here):
+ *   - The `handleAddToCart` function relies on `selectedSize` being non-null. 
+ *     If the UI allows clicking without a size, it will silently fail.
+ *
+ * Common Mistakes to Avoid:
+ *   - Forgetting to use `e.preventDefault()` on the add to cart button, causing the 
+ *     whole card (which is a `<Link>`) to navigate to the product page instead.
+ *
+ * Performance Considerations:
+ *   - Uses `next/image` extensively. The `priority` prop should only be true for 
+ *     the first 2-4 cards above the fold.
+ *
+ * Where to add new features safely:
+ *   - Add wishlisting/favorite icons inside the `IMAGE AREA` div as absolute positioned elements.
  */
 
 "use client";
@@ -136,6 +151,9 @@ export function ProductCard({
   const hasSizes = showSizes && sizes && sizes.length > 0;
   const canAddToCart = showAddToCart && selectedSize && !soldOut;
 
+  // WHAT IT DOES: Adds the selected item to the global cart store, triggers a brief "Added!" UI feedback, and auto-opens the cart.
+  // WHY IT EXISTS: To bridge the product card interaction with the global cart state and provide immediate visual confirmation to the user.
+  // WHAT CAN BREAK IF MODIFIED: Removing `e.preventDefault()` will cause the parent `<Link>` to trigger, navigating away from the page immediately instead of adding to cart.
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();

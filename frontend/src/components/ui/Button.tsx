@@ -1,15 +1,31 @@
-/*
- * Button Component
- * =================
- * Reusable button with Chrome Industries-inspired variants.
- * Renders as <a> (via next/link) when href is provided, <button> otherwise.
+/**
+ * ==========================================
+ * FILE SUMMARY: src/components/ui/Button.tsx
+ * ==========================================
+ * Purpose: 
+ *   A highly reusable, polymorphic button component. Implements the Chrome Industries 
+ *   industrial design language (uppercase, tracked out, solid borders). Can render as 
+ *   a `<button>` or a Next.js `<Link>`.
  *
- * Variants:
- *   primary   — forest green bg, white text (main CTA)
- *   secondary — outlined, charcoal border (secondary actions)
- *   dark      — charcoal bg, white text (Chrome-style)
- *   sale      — red bg, white text (sale/promo)
- *   ghost     — no bg/border, text only
+ * Connections:
+ *   - Used globally across the application.
+ *
+ * Data Flow:
+ *   - Static variants driven by props.
+ *
+ * Risky Areas (Bugs likely here):
+ *   - The polymorphic typing (`ButtonProps` union) can cause TypeScript errors if 
+ *   both `href` and `onClick` are passed simultaneously.
+ *
+ * Common Mistakes to Avoid:
+ *   - Overriding the `bg` or `border` colors via the `className` prop without using 
+ *   Tailwind's `!important` classes, as the variant styles will likely win the CSS cascade.
+ *
+ * Performance Considerations:
+ *   - Lightweight. Uses `tailwind-merge` (`cn`) to cleanly resolve class conflicts.
+ *
+ * Where to add new features safely:
+ *   - Add new style configurations to the `variantStyles` or `sizeStyles` objects.
  */
 
 import Link from "next/link";

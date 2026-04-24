@@ -1,16 +1,31 @@
 "use client";
 
-/*
- * Footer Component
- * =================
- * Dark 4-column footer with newsletter form and social links.
- * Adapted from Chrome Industries footer pattern.
+/**
+ * ==========================================
+ * FILE SUMMARY: src/components/layout/Footer.tsx
+ * ==========================================
+ * Purpose: 
+ *   The global site footer containing navigation links, social icons, and a newsletter form.
  *
- * Columns:
- *   1. Brand + newsletter + social icons
- *   2. Shop links
- *   3. Info links  
- *   4. Connect links
+ * Connections:
+ *   - Rendered globally in `app/layout.tsx`.
+ *
+ * Data Flow:
+ *   - Static configuration arrays drive the links.
+ *
+ * Risky Areas (Bugs likely here):
+ *   - The newsletter form currently prevents default submission without making an API call. 
+ *     Wiring this up requires backend integration.
+ *
+ * Common Mistakes to Avoid:
+ *   - Hardcoding new links directly in the JSX instead of adding them to the `FOOTER_COLUMNS` array.
+ *
+ * Performance Considerations:
+ *   - Lightweight, purely presentational.
+ *
+ * Where to add new features safely:
+ *   - Add new link columns to the `FOOTER_COLUMNS` constant.
+ *   - Connect the newsletter form to an API route in the `onSubmit` handler.
  */
 
 import Link from "next/link";

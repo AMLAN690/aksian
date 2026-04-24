@@ -1,19 +1,29 @@
-/*
- * GamusaBackground Effect (Lightweight)
- * =======================================
- * Subtle CSS-based textile pattern overlay inspired by Assamese
- * gamusa weaving. Uses repeating CSS gradients to evoke a woven
- * cross-hatch texture — no SVGs, no heavy Framer Motion.
+/**
+ * ==========================================
+ * FILE SUMMARY: src/components/effects/GamusaBackground.tsx
+ * ==========================================
+ * Purpose: 
+ *   A lightweight, CSS-only background texture mimicking Assamese gamusa weaving. 
+ *   Provides subtle ambient animation using purely CSS gradients.
  *
- * This is the lightweight alternative to /ui/GamusaBackground.tsx
- * which uses detailed SVG motifs + Framer Motion animation. Use
- * this version when you want a subtle texture with minimal cost.
+ * Connections:
+ *   - Used as a full-page background in `app/layout.tsx` or specific hero sections.
  *
- * Performance:
- *   - Pure CSS (zero JS runtime)
- *   - Single DOM element
- *   - GPU composited (will-change: auto)
- *   - pointer-events: none
+ * Data Flow:
+ *   - Inputs: None.
+ *   - Outputs: Single `div` with CSS styling.
+ *
+ * Risky Areas (Bugs likely here):
+ *   - Modifying the `repeating-linear-gradient` syntax is highly error-prone and can break the entire texture.
+ *
+ * Common Mistakes to Avoid:
+ *   - Adding `pointer-events: auto` to this container, which would intercept clicks intended for the page content beneath.
+ *
+ * Performance Considerations:
+ *   - Extremely lightweight. Uses CSS animations on `opacity` which are GPU-accelerated.
+ *
+ * Where to add new features safely:
+ *   - Adjust the `opacity` values in the keyframes or inline style to make the pattern more or less visible.
  */
 
 "use client";

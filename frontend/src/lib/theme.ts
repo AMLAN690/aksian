@@ -1,10 +1,31 @@
-/*
- * AKSIAN — Theme Configuration
- * =============================
- * Brand color palette inspired by Northeast India.
- * Tea-garden greens, Brahmaputra blues, muga-silk beiges.
+/**
+ * ==========================================
+ * FILE SUMMARY: src/lib/theme.ts
+ * ==========================================
+ * Purpose: 
+ *   Defines the global brand color palette and semantic color aliases. 
+ *   Inspired by Northeast Indian textiles and landscapes.
  *
- * Usage: import { COLORS } from "@/lib/theme";
+ * Connections:
+ *   - Exported `COLORS` constant is used globally by inline styles, canvas, or JS animations 
+ *     that cannot directly use Tailwind classes (like `GamusaBackground.tsx` and `FloatingOrbs.tsx`).
+ *
+ * Data Flow:
+ *   - Inputs: None (Static Configuration).
+ *   - Outputs: `COLORS` object containing hex codes.
+ *
+ * Risky Areas (Bugs likely here):
+ *   - Changing semantic aliases here might cause visual regression in JS-driven animations.
+ *
+ * Common Mistakes to Avoid:
+ *   - Using these constants for standard UI elements instead of CSS variables/Tailwind classes.
+ *
+ * Performance Considerations:
+ *   - None. It's a static object.
+ *
+ * Where to add new features safely:
+ *   - Add new shades to the `green`, `blue`, or `beige` objects.
+ *   - Add new semantic aliases at the bottom of the `COLORS` object.
  */
 
 export const COLORS = {

@@ -1,19 +1,33 @@
-/*
- * Navbar Component
- * =================
- * Sticky navigation bar with Chrome Industries' 3-zone layout.
+/**
+ * ==========================================
+ * FILE SUMMARY: src/components/layout/Navbar.tsx
+ * ==========================================
+ * Purpose: 
+ *   The primary site navigation header. Implements a responsive 3-zone layout 
+ *   (Logo, Links, Utilities) that adapts based on screen size.
  *
- * Desktop (>= lg):
- *   Logo (left) → Nav links (center) → Search + Cart (right)
+ * Connections:
+ *   - Rendered by `Header.tsx`.
+ *   - Triggers state changes in `Header.tsx` (mobile menu toggle) and `useCartStore` 
+ *     (cart drawer toggle).
  *
- * Mobile (< lg):
- *   Hamburger (left) → Logo (center) → Cart (right)
+ * Data Flow:
+ *   - Inputs: `cartCount`, `onMenuToggle`, `onCartToggle` props.
+ *   - Outputs: Calls toggle functions on button click.
  *
- * Features:
- *   - Sticky positioning with backdrop blur
- *   - Scroll-aware border (appears after scrolling)
- *   - Nav link hover underline animation (left-to-right expand)
- *   - Cart count badge
+ * Risky Areas (Bugs likely here):
+ *   - The scroll event listener can cause performance issues if the `setState` 
+ *     is triggered too frequently (though React's boolean diffing handles this well).
+ *
+ * Common Mistakes to Avoid:
+ *   - Putting heavy computation or layout thrashing inside the `handleScroll` function.
+ *
+ * Performance Considerations:
+ *   - Uses `{ passive: true }` on the scroll listener to prevent blocking the main thread during scroll.
+ *
+ * Where to add new features safely:
+ *   - Add desktop navigation items to the `NAV_LINKS` array.
+ *   - Add utility icons (like account or wishlist) to the "Right zone" flex container.
  */
 
 "use client";
@@ -37,6 +51,9 @@ const NAV_LINKS = [
 export function Navbar({ onMenuToggle, onCartToggle, cartCount = 0 }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
 
+  // WHAT IT DOES: Listens to the window scroll event to toggle a 'scrolled' state if the user scrolls past 10px.
+  // WHY IT EXISTS: Allows the navbar to add a bottom border dynamically, blending in at the top but separating from content when scrolled.
+  // WHAT CAN BREAK IF MODIFIED: Forgetting to remove the event listener on unmount will cause memory leaks. Removing `{ passive: true }` can hurt scroll performance.
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 10);

@@ -1,10 +1,31 @@
-/*
- * Header Component (Client Wrapper)
- * ===================================
- * Composes AnnouncementBar + Navbar + MobileDrawer + CartDrawer.
+/**
+ * ==========================================
+ * FILE SUMMARY: src/components/layout/Header.tsx
+ * ==========================================
+ * Purpose: 
+ *   The master wrapper for all top-level navigation components. Composes the AnnouncementBar, 
+ *   Navbar, MobileDrawer, and CartDrawer together.
  *
- * Cart state comes from Zustand (useCartStore).
- * Cart drawer is self-managed via the store — no local state needed.
+ * Connections:
+ *   - Included globally in `app/layout.tsx`.
+ *   - Reads global state from `useCartStore`.
+ *
+ * Data Flow:
+ *   - Inputs: None directly, reads from Zustand.
+ *   - Outputs: Passes toggle callbacks (`onMenuToggle`, `onCartToggle`) down to `Navbar`.
+ *
+ * Risky Areas (Bugs likely here):
+ *   - None specifically, it acts as a layout composition component.
+ *
+ * Common Mistakes to Avoid:
+ *   - Moving the `CartDrawer` state to local React state instead of using Zustand, which would 
+ *     prevent other components (like `ProductCard`) from opening the cart.
+ *
+ * Performance Considerations:
+ *   - Keep this component lightweight as it wraps the entire app layout.
+ *
+ * Where to add new features safely:
+ *   - Add new global overlays (like a Search Modal or Newsletter popup) here.
  */
 
 "use client";

@@ -1,8 +1,27 @@
-/*
- * About Section
- * ==============
- * Brief brand story section — communicates AKSIAN's mission
- * and Northeast India roots. Minimal, text-forward layout.
+/**
+ * ==========================================
+ * FILE SUMMARY: src/components/sections/About.tsx
+ * ==========================================
+ * Purpose: 
+ *   A purely presentational section component that communicates the brand story and mission.
+ *
+ * Connections:
+ *   - Rendered on the homepage (`app/page.tsx`).
+ *
+ * Data Flow:
+ *   - Static content. No dynamic inputs or outputs.
+ *
+ * Risky Areas (Bugs likely here):
+ *   - None.
+ *
+ * Common Mistakes to Avoid:
+ *   - Overcomplicating this component with state or API calls. Keep it simple and fast.
+ *
+ * Performance Considerations:
+ *   - Very lightweight. Pure HTML/Tailwind.
+ *
+ * Where to add new features safely:
+ *   - Add images or videos to the "Visual column" placeholder div.
  */
 
 import { Container } from "@/components/ui/Container";

@@ -1,3 +1,35 @@
+/**
+ * ==========================================
+ * FILE SUMMARY: src/components/product/ProductGrid.tsx
+ * ==========================================
+ * Purpose: 
+ *   A responsive, horizontal sliding carousel grid for displaying product cards. 
+ *   Supports auto-advance, touch swiping, and dynamic item sizing.
+ *
+ * Connections:
+ *   - Renders `ProductCard.tsx`.
+ *   - Used by `Products.tsx` (New Drops) and potentially other collection pages.
+ *
+ * Data Flow:
+ *   - Inputs: Array of `Product` objects.
+ *   - Outputs: Displays a paginated carousel of cards.
+ *
+ * Risky Areas (Bugs likely here):
+ *   - The auto-slide `setInterval` and the manual `currentIndex` state can fall out of sync 
+ *     if the user resizes the window, potentially showing blank spaces if `currentIndex` exceeds `maxIndex`.
+ *
+ * Common Mistakes to Avoid:
+ *   - Replacing the CSS `transform` animation with React re-renders for sliding. CSS transforms 
+ *     are GPU-accelerated and much smoother.
+ *
+ * Performance Considerations:
+ *   - Carousel is rendered as a single long flex row. This is fine for < 20 items, but could 
+ *     be heavy if displaying 100+ products (requires virtualization in that case).
+ *
+ * Where to add new features safely:
+ *   - Add "Previous/Next" arrow buttons alongside the navigation dots at the bottom.
+ */
+
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -71,6 +103,9 @@ export function ProductGrid({
   const maxIndex = Math.max(0, products.length - itemsToShow);
 
   // Responsive items count
+  // WHAT IT DOES: Calculates how many items to show based on window width and updates state on resize.
+  // WHY IT EXISTS: To make the carousel responsive without duplicating DOM elements (e.g., hiding/showing different grids via CSS).
+  // WHAT CAN BREAK IF MODIFIED: Removing the `removeEventListener` cleanup will cause memory leaks and erratic behavior on window resize.
   useEffect(() => {
     const updateItemsToShow = () => {
       if (window.innerWidth >= 1024) setItemsToShow(4);
@@ -89,6 +124,9 @@ export function ProductGrid({
   }, [itemsToShow, products.length]);
 
   // Auto-slide every 6 seconds
+  // WHAT IT DOES: Advances the carousel to the next slide every 6 seconds, pausing if `isPaused` is true.
+  // WHY IT EXISTS: To passively showcase more inventory to the user without requiring manual interaction.
+  // WHAT CAN BREAK IF MODIFIED: Not cleaning up the `setInterval` on unmount will result in state updates on an unmounted component.
   useEffect(() => {
     if (isPaused || maxIndex <= 0) return;
     const interval = setInterval(() => {
@@ -109,6 +147,9 @@ export function ProductGrid({
     setTouchEnd(e.targetTouches[0].clientX);
   };
 
+  // WHAT IT DOES: Detects horizontal touch swipes to manually advance or rewind the carousel.
+  // WHY IT EXISTS: To provide a native-feeling touch experience on mobile devices.
+  // WHAT CAN BREAK IF MODIFIED: Changing the `minSwipeDistance` could make the carousel too sensitive to vertical scrolling or too hard to swipe.
   const onTouchEndHandler = () => {
     if (!touchStart || !touchEnd) return;
     const distance = touchStart - touchEnd;
