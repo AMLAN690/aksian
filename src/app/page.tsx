@@ -29,15 +29,13 @@
  *   - Add new sections (like "Categories" or "Instagram Feed") between existing components.
  */
 
-import { Hero } from "@/components/sections/Hero";
-import { Products } from "@/components/sections/Products";
-import { About } from "@/components/sections/About";
+import { Hero, FeaturedProducts, About } from "@/features/home";
 
 export default function Home() {
   return (
     <>
       <Hero />
-      <Products />
+      <FeaturedProducts />
       <About />
     </>
   );

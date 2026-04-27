@@ -32,9 +32,9 @@
  */
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { GamusaBackground } from "@/components/ui/GamusaBackground";
+import { Header } from "@/shared/components/layout/Header";
+import { Footer } from "@/shared/components/layout/Footer";
+import { GamusaBackground } from "@/shared/components/effects/GamusaBackground";
 import "./globals.css";
 
 /* ── Font Configuration ──────────────────────────────────────── */
