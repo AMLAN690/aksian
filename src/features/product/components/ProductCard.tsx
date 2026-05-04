@@ -1,45 +1,29 @@
 /**
  * ==========================================
- * FILE SUMMARY: src/components/product/ProductCard.tsx
+ * FILE SUMMARY: src/features/product/components/ProductCard.tsx
  * ==========================================
- * Purpose: 
- *   Renders an individual product card with hover animations, size selection, 
- *   and "Add to Cart" functionality. Features a premium design with Framer Motion.
+ * Purpose:
+ *   Renders an individual product card with hover animations, size selection,
+ *   and "Add to Cart" functionality. Cart interaction logic is delegated
+ *   to the `useAddToCart` hook.
  *
  * Connections:
  *   - Rendered by `ProductGrid.tsx` and collection pages.
- *   - Dispatches items to `useCartStore`.
- *
- * Data Flow:
- *   - Inputs: `Product` object and display configuration props (`priority`, `showSizes`).
- *   - Outputs: Adds a `CartItem` to the global store on add to cart.
- *
- * Risky Areas (Bugs likely here):
- *   - The `handleAddToCart` function relies on `selectedSize` being non-null. 
- *     If the UI allows clicking without a size, it will silently fail.
- *
- * Common Mistakes to Avoid:
- *   - Forgetting to use `e.preventDefault()` on the add to cart button, causing the 
- *     whole card (which is a `<Link>`) to navigate to the product page instead.
- *
- * Performance Considerations:
- *   - Uses `next/image` extensively. The `priority` prop should only be true for 
- *     the first 2-4 cards above the fold.
+ *   - Uses `useAddToCart` hook which dispatches to `useCartStore`.
  *
  * Where to add new features safely:
- *   - Add wishlisting/favorite icons inside the `IMAGE AREA` div as absolute positioned elements.
+ *   - Add wishlisting/favorite icons inside the IMAGE AREA div as absolute positioned elements.
  */
 
 "use client";
 
-import { useState, useRef } from "react";
+import { useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { cn } from "@/shared/lib/utils";
-import { formatPrice } from "@/shared/lib/utils";
+import { cn, formatPrice } from "@/shared/lib/utils";
 import { Badge } from "@/shared/components/ui/Badge";
-import { useCartStore } from "@/features/cart/store/useCartStore";
+import { useAddToCart } from "@/features/product/hooks/useAddToCart";
 import type { Product, SizeOption } from "@/features/product/types";
 
 /* ── Props ───────────────────────────────────────────────────── */
@@ -127,9 +111,13 @@ export function ProductCard({
   className,
   index = 0,
 }: ProductCardProps) {
-  const [selectedSize, setSelectedSize] = useState<string | null>(null);
-  const [addedFeedback, setAddedFeedback] = useState(false);
-  const addItem = useCartStore((s) => s.addItem);
+  const {
+    selectedSize,
+    setSelectedSize,
+    addedFeedback,
+    canAddToCart,
+    handleAddToCart,
+  } = useAddToCart(product, showAddToCart);
 
   const {
     id,
@@ -149,28 +137,6 @@ export function ProductCard({
   const isSale = badge === "sale" && compareAtPrice;
   const hasHoverImage = !!hoverImage;
   const hasSizes = showSizes && sizes && sizes.length > 0;
-  const canAddToCart = showAddToCart && selectedSize && !soldOut;
-
-  // WHAT IT DOES: Adds the selected item to the global cart store, triggers a brief "Added!" UI feedback, and auto-opens the cart.
-  // WHY IT EXISTS: To bridge the product card interaction with the global cart state and provide immediate visual confirmation to the user.
-  // WHAT CAN BREAK IF MODIFIED: Removing `e.preventDefault()` will cause the parent `<Link>` to trigger, navigating away from the page immediately instead of adding to cart.
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!selectedSize) return;
-
-    addItem({
-      id,
-      title,
-      price,
-      image: primaryImage,
-      size: selectedSize,
-    });
-
-    // Brief "Added!" feedback
-    setAddedFeedback(true);
-    setTimeout(() => setAddedFeedback(false), 1200);
-  };
 
   /* Gate entrance animation — only on first mount */
   const hasAnimated = useRef(false);

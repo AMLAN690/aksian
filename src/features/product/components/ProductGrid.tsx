@@ -1,30 +1,15 @@
 /**
  * ==========================================
- * FILE SUMMARY: src/components/product/ProductGrid.tsx
+ * FILE SUMMARY: src/features/product/components/ProductGrid.tsx
  * ==========================================
- * Purpose: 
- *   A responsive, horizontal sliding carousel grid for displaying product cards. 
- *   Supports auto-advance, touch swiping, and dynamic item sizing.
+ * Purpose:
+ *   A responsive, horizontal sliding carousel grid for displaying product cards.
+ *   All carousel behavior (auto-slide, swipe, responsive sizing) is delegated
+ *   to the `useCarousel` hook — this component only handles rendering.
  *
  * Connections:
  *   - Renders `ProductCard.tsx`.
- *   - Used by `Products.tsx` (New Drops) and potentially other collection pages.
- *
- * Data Flow:
- *   - Inputs: Array of `Product` objects.
- *   - Outputs: Displays a paginated carousel of cards.
- *
- * Risky Areas (Bugs likely here):
- *   - The auto-slide `setInterval` and the manual `currentIndex` state can fall out of sync 
- *     if the user resizes the window, potentially showing blank spaces if `currentIndex` exceeds `maxIndex`.
- *
- * Common Mistakes to Avoid:
- *   - Replacing the CSS `transform` animation with React re-renders for sliding. CSS transforms 
- *     are GPU-accelerated and much smoother.
- *
- * Performance Considerations:
- *   - Carousel is rendered as a single long flex row. This is fine for < 20 items, but could 
- *     be heavy if displaying 100+ products (requires virtualization in that case).
+ *   - Used by `FeaturedProducts.tsx` (New Drops) and potentially other collection pages.
  *
  * Where to add new features safely:
  *   - Add "Previous/Next" arrow buttons alongside the navigation dots at the bottom.
@@ -32,9 +17,9 @@
 
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
 import { cn } from "@/shared/lib/utils";
 import { ProductCard } from "@/features/product/components/ProductCard";
+import { useCarousel } from "@/features/product/hooks/useCarousel";
 import type { Product } from "@/features/product/types";
 
 /* ── Props ───────────────────────────────────────────────────── */
@@ -93,77 +78,16 @@ export function ProductGrid({
   id,
   className,
 }: ProductGridProps) {
-  const [itemsToShow, setItemsToShow] = useState(2);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-  const [touchStart, setTouchStart] = useState<number | null>(null);
-  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const {
+    currentIndex,
+    setCurrentIndex,
+    itemsToShow,
+    maxIndex,
+    setIsPaused,
+    touchHandlers,
+  } = useCarousel({ totalItems: products.length });
 
-  const isEmpty = products.length === 0;
-  const maxIndex = Math.max(0, products.length - itemsToShow);
-
-  // Responsive items count
-  // WHAT IT DOES: Calculates how many items to show based on window width and updates state on resize.
-  // WHY IT EXISTS: To make the carousel responsive without duplicating DOM elements (e.g., hiding/showing different grids via CSS).
-  // WHAT CAN BREAK IF MODIFIED: Removing the `removeEventListener` cleanup will cause memory leaks and erratic behavior on window resize.
-  useEffect(() => {
-    const updateItemsToShow = () => {
-      if (window.innerWidth >= 1024) setItemsToShow(4);
-      else if (window.innerWidth >= 768) setItemsToShow(3);
-      else setItemsToShow(2);
-    };
-    
-    updateItemsToShow();
-    window.addEventListener("resize", updateItemsToShow);
-    return () => window.removeEventListener("resize", updateItemsToShow);
-  }, []);
-
-  // Ensure currentIndex is within bounds when resizing
-  useEffect(() => {
-    setCurrentIndex((prev) => Math.min(prev, Math.max(0, products.length - itemsToShow)));
-  }, [itemsToShow, products.length]);
-
-  // Auto-slide every 6 seconds
-  // WHAT IT DOES: Advances the carousel to the next slide every 6 seconds, pausing if `isPaused` is true.
-  // WHY IT EXISTS: To passively showcase more inventory to the user without requiring manual interaction.
-  // WHAT CAN BREAK IF MODIFIED: Not cleaning up the `setInterval` on unmount will result in state updates on an unmounted component.
-  useEffect(() => {
-    if (isPaused || maxIndex <= 0) return;
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
-    }, 6000);
-    return () => clearInterval(interval);
-  }, [isPaused, maxIndex]);
-
-  // Swipe handlers
-  const minSwipeDistance = 50;
-
-  const onTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-
-  const onTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
-
-  // WHAT IT DOES: Detects horizontal touch swipes to manually advance or rewind the carousel.
-  // WHY IT EXISTS: To provide a native-feeling touch experience on mobile devices.
-  // WHAT CAN BREAK IF MODIFIED: Changing the `minSwipeDistance` could make the carousel too sensitive to vertical scrolling or too hard to swipe.
-  const onTouchEndHandler = () => {
-    if (!touchStart || !touchEnd) return;
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > minSwipeDistance;
-    const isRightSwipe = distance < -minSwipeDistance;
-
-    if (isLeftSwipe && currentIndex < maxIndex) {
-      setCurrentIndex((prev) => prev + 1);
-    } else if (isRightSwipe && currentIndex > 0) {
-      setCurrentIndex((prev) => prev - 1);
-    }
-  };
-
-  if (isEmpty) {
+  if (products.length === 0) {
     return <EmptyState />;
   }
 
@@ -175,9 +99,9 @@ export function ProductGrid({
       className={cn("relative overflow-hidden w-full", className)}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={onTouchEndHandler}
+      onTouchStart={touchHandlers.onTouchStart}
+      onTouchMove={touchHandlers.onTouchMove}
+      onTouchEnd={touchHandlers.onTouchEnd}
     >
       {/* Sliding track */}
       <div
@@ -232,8 +156,6 @@ export function ProductGrid({
 /* ── Loading Skeleton Grid ───────────────────────────────────── */
 
 export function ProductGridSkeleton({ count = 8 }: { count?: number }) {
-  // We can just render the skeleton as a static grid, as the carousel requires JS to run.
-  // This matches standard SSR/loading practices, but wrapped in similar spacing.
   return (
     <div className="overflow-hidden w-full">
       <div className="flex -mx-1 md:-mx-1.5 lg:-mx-2">
