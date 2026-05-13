@@ -205,6 +205,15 @@ export function ProductCard({
                       ? "Sold"
                       : "New"}
               </Badge>
+              {product.stock === 1 && !soldOut && (
+                <Badge variant="lowStock">Only 1 left</Badge>
+              )}
+            </div>
+          )}
+          {/* Low stock without other badge */}
+          {!badge && product.stock === 1 && !soldOut && (
+            <div className="absolute top-2 left-2 z-10">
+              <Badge variant="lowStock">Only 1 left</Badge>
             </div>
           )}
 

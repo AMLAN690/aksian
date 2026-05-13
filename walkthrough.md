@@ -1,97 +1,100 @@
-# SOLID Refactoring — Walkthrough
-
-## Summary
-
-Decomposed three monolithic components into **hook + sub-component** pairs, applying Single Responsibility without over-engineering.
-
----
+# Frontend Modular Refactor — Walkthrough
 
 ## What Changed
 
-### Cart Feature — `CartDrawer` (544 → 190 lines)
+Refactored the Aksian frontend from a monolithic `page.tsx` into a modular, component-driven architecture.
 
-| Extraction | File | Responsibility |
-|---|---|---|
-| `useCartCheckout` | [useCartCheckout.ts](file:///c:/Users/Lenovo/OneDrive/Desktop/aksian/src/features/cart/hooks/useCartCheckout.ts) | Payment state machine (status, result, checkout handler, reset) |
-| `useDrawerEffects` | [useDrawerEffects.ts](file:///c:/Users/Lenovo/OneDrive/Desktop/aksian/src/features/cart/hooks/useDrawerEffects.ts) | Body scroll lock + Escape key dismiss |
-| `CartHeader` | [CartHeader.tsx](file:///c:/Users/Lenovo/OneDrive/Desktop/aksian/src/features/cart/components/CartHeader.tsx) | Title, animated badge, close button |
-| `CartFooter` | [CartFooter.tsx](file:///c:/Users/Lenovo/OneDrive/Desktop/aksian/src/features/cart/components/CartFooter.tsx) | Subtotal display, checkout button, security note |
-| `PaymentSuccess` | [PaymentSuccess.tsx](file:///c:/Users/Lenovo/OneDrive/Desktop/aksian/src/features/cart/components/PaymentSuccess.tsx) | Animated success state |
-| `PaymentError` | [PaymentError.tsx](file:///c:/Users/Lenovo/OneDrive/Desktop/aksian/src/features/cart/components/PaymentError.tsx) | Error state with retry |
-| `EmptyCart` | [EmptyCart.tsx](file:///c:/Users/Lenovo/OneDrive/Desktop/aksian/src/features/cart/components/EmptyCart.tsx) | Empty cart state |
-
-**CartDrawer** is now a thin orchestrator — reads store, calls hooks, delegates to sub-components based on `paymentStatus`.
+### New Files Created (9 files)
 
 ---
 
-### Product Feature — `ProductGrid` (252 → 150 lines)
-
-| Extraction | File | Responsibility |
-|---|---|---|
-| `useCarousel` | [useCarousel.ts](file:///c:/Users/Lenovo/OneDrive/Desktop/aksian/src/features/product/hooks/useCarousel.ts) | Responsive sizing, auto-slide, index clamping, touch swipe |
-
-**ProductGrid** now calls `useCarousel({ totalItems })` and only handles rendering the track + dots.
+#### `/src/lib/theme.ts` — [theme.ts](file:///c:/Users/Lenovo/OneDrive/Desktop/aksian/frontend/src/lib/theme.ts)
+Exported `COLORS` object with green, blue, and beige palettes inspired by Northeast India (tea gardens, Brahmaputra, muga silk), plus semantic aliases.
 
 ---
 
-### Product Feature — `ProductCard` (318 → 250 lines)
+#### `/src/components/ui/Container.tsx` — [Container.tsx](file:///c:/Users/Lenovo/OneDrive/Desktop/aksian/frontend/src/components/ui/Container.tsx)
+Polymorphic container wrapper (`as` prop → div/section/article/main) applying brand max-width + padding.
 
-| Extraction | File | Responsibility |
-|---|---|---|
-| `useAddToCart` | [useAddToCart.ts](file:///c:/Users/Lenovo/OneDrive/Desktop/aksian/src/features/product/hooks/useAddToCart.ts) | Size selection, cart store dispatch, "Added!" feedback timer |
-
-**ProductCard** calls `useAddToCart(product, showAddToCart)` and stays focused on presentation.
+#### `/src/components/ui/Card.tsx` — [Card.tsx](file:///c:/Users/Lenovo/OneDrive/Desktop/aksian/frontend/src/components/ui/Card.tsx)
+Composable card with `Card`, `CardImage`, `CardContent` sub-components. Three variants: default, elevated, ghost.
 
 ---
 
-## What Stayed Put (Intentional)
+#### `/src/components/sections/Hero.tsx` — [Hero.tsx](file:///c:/Users/Lenovo/OneDrive/Desktop/aksian/frontend/src/components/sections/Hero.tsx)
+Extracted hero section from page.tsx. Self-contained with eyebrow, headline, subtitle, CTAs.
 
-- `CartItemRow` — small, private to CartDrawer
-- `SizeSelector` — small, private to ProductCard
-- `ProductCardSkeleton` / `EmptyState` — small, private to ProductGrid
-- `useCartStore` — already single-responsibility
-- `useRazorpay` — already a clean hook
-- All types, shared utils, barrel exports — already well-structured
+#### `/src/components/sections/Products.tsx` — [Products.tsx](file:///c:/Users/Lenovo/OneDrive/Desktop/aksian/frontend/src/components/sections/Products.tsx)
+Product grid section using Card + Badge composition. Mock data ready for backend integration.
+
+#### `/src/components/sections/About.tsx` — [About.tsx](file:///c:/Users/Lenovo/OneDrive/Desktop/aksian/frontend/src/components/sections/About.tsx)
+2-column brand story section with placeholder for brand imagery.
 
 ---
 
-## File Structure After
+#### `/src/components/effects/FloatingOrbs.tsx` — [FloatingOrbs.tsx](file:///c:/Users/Lenovo/OneDrive/Desktop/aksian/frontend/src/components/effects/FloatingOrbs.tsx)
+3 soft animated gradient orbs with CSS-only `orb-drift` keyframes. Respects `prefers-reduced-motion`.
+
+#### `/src/components/effects/GamusaBackground.tsx` — [GamusaBackground.tsx](file:///c:/Users/Lenovo/OneDrive/Desktop/aksian/frontend/src/components/effects/GamusaBackground.tsx)
+Lightweight CSS-based textile texture (`GamusaBackgroundLight`) using repeating gradients. Zero JS runtime alternative to the SVG-heavy version in `/ui/`.
+
+---
+
+### Modified Files (1 file)
+
+#### `/src/app/page.tsx` — [page.tsx](file:///c:/Users/Lenovo/OneDrive/Desktop/aksian/frontend/src/app/page.tsx)
+Replaced all inline markup with section imports. Now just 3 lines of composition:
+```tsx
+<Hero />
+<Products />
+<About />
+```
+
+### Untouched Files
+- `/app/layout.tsx` — not modified
+- `/components/ui/Button.tsx` — not modified
+- `/components/ui/Badge.tsx` — not modified
+- `/components/ui/GamusaBackground.tsx` (SVG version) — not modified
+- `/components/layout/*` (Navbar, Footer, Header, etc.) — not modified
+
+## Final Structure
 
 ```
-features/cart/
+src/
+├── app/
+│   ├── layout.tsx          (untouched)
+│   ├── page.tsx            (refactored → section imports)
+│   └── globals.css         (untouched)
 ├── components/
-│   ├── CartDrawer.tsx      ← orchestrator (~190 lines)
-│   ├── CartHeader.tsx       [NEW]
-│   ├── CartFooter.tsx       [NEW]
-│   ├── PaymentSuccess.tsx   [NEW]
-│   ├── PaymentError.tsx     [NEW]
-│   └── EmptyCart.tsx         [NEW]
-├── hooks/
-│   ├── useCartCheckout.ts   [NEW]
-│   └── useDrawerEffects.ts  [NEW]
-├── store/
-│   └── useCartStore.ts
-├── types.ts
-└── index.ts
-
-features/product/
-├── components/
-│   ├── ProductCard.tsx      ← presentation (~250 lines)
-│   └── ProductGrid.tsx      ← rendering only (~150 lines)
-├── hooks/
-│   ├── useCarousel.ts       [NEW]
-│   └── useAddToCart.ts      [NEW]
-├── data/
-│   └── mock-products.ts
-├── types.ts
-└── index.ts
+│   ├── ui/
+│   │   ├── Button.tsx      (existing)
+│   │   ├── Badge.tsx       (existing)
+│   │   ├── Card.tsx        ✨ NEW
+│   │   ├── Container.tsx   ✨ NEW
+│   │   └── GamusaBackground.tsx (existing SVG version)
+│   ├── layout/
+│   │   ├── Navbar.tsx      (existing)
+│   │   ├── Footer.tsx      (existing)
+│   │   ├── Header.tsx      (existing)
+│   │   ├── AnnouncementBar.tsx (existing)
+│   │   ├── MobileDrawer.tsx    (existing)
+│   │   └── CartDrawer.tsx      (existing)
+│   ├── sections/           ✨ NEW FOLDER
+│   │   ├── Hero.tsx
+│   │   ├── Products.tsx
+│   │   └── About.tsx
+│   └── effects/            ✨ NEW FOLDER
+│       ├── GamusaBackground.tsx (lightweight CSS version)
+│       └── FloatingOrbs.tsx
+├── lib/
+│   ├── utils.ts            (existing)
+│   └── theme.ts            ✨ NEW
+└── hooks/                  ✨ NEW FOLDER
+    └── .gitkeep
 ```
 
 ## Verification
 
-```
-npm run build → ✓ Compiled successfully in 6.6s
-TypeScript → ✓ passed
-Static pages → ✓ 4/4 generated
-Exit code: 0
-```
+- **Build**: `next build` passed with exit code 0
+- **TypeScript**: All type checks passed
+- **Static generation**: Both routes (`/` and `/_not-found`) generated successfully

@@ -27,7 +27,7 @@
 
 import { cn } from "@/shared/lib/utils";
 
-type BadgeVariant = "new" | "sale" | "oneOfOne" | "soldOut" | "condition";
+type BadgeVariant = "new" | "sale" | "oneOfOne" | "soldOut" | "condition" | "lowStock";
 
 interface BadgeProps {
   variant?: BadgeVariant;
@@ -46,6 +46,8 @@ const variantStyles: Record<BadgeVariant, string> = {
     "bg-brand-surface text-brand-muted border border-brand-border",
   condition:
     "bg-brand-surface text-brand-text",
+  lowStock:
+    "bg-brand-accent-dark text-white",
 };
 
 export function Badge({ variant = "new", children, className }: BadgeProps) {

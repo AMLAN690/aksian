@@ -27,6 +27,7 @@ export const FEATURED_PRODUCTS: Product[] = [
     ],
     condition: "9/10",
     badge: "oneOfOne",
+    stock: 1,
   },
   {
     id: "2",
@@ -47,6 +48,7 @@ export const FEATURED_PRODUCTS: Product[] = [
     ],
     condition: "8/10",
     badge: "new",
+    stock: 3,
   },
   {
     id: "3",
@@ -68,6 +70,7 @@ export const FEATURED_PRODUCTS: Product[] = [
     ],
     condition: "9/10",
     badge: "sale",
+    stock: 2,
   },
   {
     id: "4",
@@ -88,6 +91,7 @@ export const FEATURED_PRODUCTS: Product[] = [
     ],
     condition: "8.5/10",
     badge: "oneOfOne",
+    stock: 1,
   },
   {
     id: "5",
@@ -107,6 +111,7 @@ export const FEATURED_PRODUCTS: Product[] = [
     ],
     condition: "8/10",
     badge: "new",
+    stock: 2,
   },
   {
     id: "6",
@@ -124,6 +129,7 @@ export const FEATURED_PRODUCTS: Product[] = [
     ],
     condition: "7.5/10",
     badge: "oneOfOne",
+    stock: 1,
   },
   {
     id: "7",
@@ -144,6 +150,7 @@ export const FEATURED_PRODUCTS: Product[] = [
     ],
     condition: "9/10",
     badge: "new",
+    stock: 1,
   },
   {
     id: "8",
@@ -165,5 +172,137 @@ export const FEATURED_PRODUCTS: Product[] = [
     ],
     condition: "8/10",
     badge: "sale",
+    stock: 3,
+  },
+  /* ── Additional products for fuller categories ──────────── */
+  {
+    id: "9",
+    slug: "oversized-band-tee",
+    title: "Oversized Band Tee",
+    description: "Faded tour merch print. Boxy oversized fit.",
+    price: 799,
+    images: ["/images/placeholder-9.jpg"],
+    primaryImage: "/images/placeholder-9.jpg",
+    hoverImage: "/images/placeholder-9b.jpg",
+    category: "Tops",
+    size: "XL",
+    sizes: [
+      { label: "L", available: true },
+      { label: "XL", available: true },
+    ],
+    condition: "7/10",
+    badge: "oneOfOne",
+    stock: 1,
+  },
+  {
+    id: "10",
+    slug: "pleated-wide-trousers",
+    title: "Pleated Wide Trousers",
+    description: "High-waisted wide legs in charcoal. Tailored drape.",
+    price: 1499,
+    images: ["/images/placeholder-10.jpg"],
+    primaryImage: "/images/placeholder-10.jpg",
+    hoverImage: "/images/placeholder-10b.jpg",
+    category: "Bottoms",
+    size: "30",
+    sizes: [
+      { label: "28", available: true },
+      { label: "30", available: true },
+      { label: "32", available: true },
+    ],
+    condition: "9/10",
+    badge: "new",
+    stock: 2,
+  },
+  {
+    id: "11",
+    slug: "cable-knit-cardigan",
+    title: "Cable Knit Cardigan",
+    description: "Heavy gauge cable knit. Wooden toggle buttons.",
+    price: 1799,
+    images: ["/images/placeholder-11.jpg"],
+    primaryImage: "/images/placeholder-11.jpg",
+    hoverImage: "/images/placeholder-11b.jpg",
+    category: "Knitwear",
+    size: "M",
+    sizes: [
+      { label: "S", available: true },
+      { label: "M", available: true },
+      { label: "L", available: false },
+    ],
+    condition: "8.5/10",
+    badge: "new",
+    stock: 1,
+  },
+  {
+    id: "12",
+    slug: "waxed-canvas-tote",
+    title: "Waxed Canvas Tote",
+    description: "Water-resistant waxed canvas. Leather strap handles.",
+    price: 1999,
+    images: ["/images/placeholder-12.jpg"],
+    primaryImage: "/images/placeholder-12.jpg",
+    hoverImage: "/images/placeholder-12b.jpg",
+    category: "Accessories",
+    size: "OS",
+    sizes: [
+      { label: "OS", available: true },
+    ],
+    condition: "9/10",
+    badge: "oneOfOne",
+    stock: 1,
   },
 ];
+
+/* ── Category Utilities ─────────────────────────────────────── */
+
+/** All unique categories extracted from the product catalog */
+export const CATEGORIES: string[] = Array.from(
+  new Set(FEATURED_PRODUCTS.map((p) => p.category))
+);
+
+/** All unique sizes across all products */
+export const ALL_SIZES: string[] = Array.from(
+  new Set(
+    FEATURED_PRODUCTS.flatMap(
+      (p) => p.sizes?.map((s) => s.label) ?? [p.size]
+    )
+  )
+);
+
+/** Price range bounds from the catalog */
+export const PRICE_BOUNDS = {
+  min: Math.min(...FEATURED_PRODUCTS.map((p) => p.price)),
+  max: Math.max(...FEATURED_PRODUCTS.map((p) => p.price)),
+} as const;
+
+/** Get products filtered by category */
+export function getProductsByCategory(category: string): Product[] {
+  return FEATURED_PRODUCTS.filter((p) => p.category === category);
+}
+
+/** Get related products (same category, excluding current) */
+export function getRelatedProducts(
+  currentId: string,
+  category: string,
+  limit = 4
+): Product[] {
+  return FEATURED_PRODUCTS
+    .filter((p) => p.category === category && p.id !== currentId)
+    .slice(0, limit);
+}
+
+/** Category metadata with counts */
+export function getCategoryMeta(): { name: string; count: number; slug: string }[] {
+  const counts = new Map<string, number>();
+  FEATURED_PRODUCTS.forEach((p) => {
+    counts.set(p.category, (counts.get(p.category) ?? 0) + 1);
+  });
+  return Array.from(counts.entries())
+    .map(([name, count]) => ({
+      name,
+      count,
+      slug: name.toLowerCase().replace(/\s+/g, "-"),
+    }))
+    .sort((a, b) => b.count - a.count);
+}

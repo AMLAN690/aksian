@@ -30,5 +30,6 @@ export interface Product {
   condition: string;       // e.g. "9/10", "Great", "Like New"
   badge?: "new" | "sale" | "oneOfOne" | "soldOut";
   soldOut?: boolean;
+  stock?: number;           // Units available (1 = "Only 1 left")
   createdAt?: string;
 }
