@@ -306,3 +306,17 @@ export function getCategoryMeta(): { name: string; count: number; slug: string }
     }))
     .sort((a, b) => b.count - a.count);
 }
+
+/** Find a single category's metadata by its URL slug */
+export function getCategoryBySlug(
+  slug: string
+): { name: string; count: number; slug: string } | undefined {
+  return getCategoryMeta().find((cat) => cat.slug === slug);
+}
+
+/** Get products filtered by category slug (URL-safe) */
+export function getProductsByCategorySlug(slug: string): Product[] {
+  const category = getCategoryBySlug(slug);
+  if (!category) return [];
+  return FEATURED_PRODUCTS.filter((p) => p.category === category.name);
+}

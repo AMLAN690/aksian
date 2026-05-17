@@ -18,6 +18,8 @@ export {
   CATEGORIES,
   ALL_SIZES,
   getProductsByCategory,
+  getProductsByCategorySlug,
   getRelatedProducts,
   getCategoryMeta,
+  getCategoryBySlug,
 } from "./data/mock-products";
