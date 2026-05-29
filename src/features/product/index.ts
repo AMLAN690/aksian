@@ -13,13 +13,17 @@ export { useCarousel } from "./hooks/useCarousel";
 export { useAddToCart } from "./hooks/useAddToCart";
 export { useProductFilters } from "./hooks/useProductFilters";
 export type { Product, SizeLabel, SizeOption } from "./types";
+export type { CollectionMeta } from "./data/mock-products";
 export {
   FEATURED_PRODUCTS,
   CATEGORIES,
+  COLLECTIONS,
   ALL_SIZES,
   getProductsByCategory,
   getProductsByCategorySlug,
   getRelatedProducts,
   getCategoryMeta,
   getCategoryBySlug,
+  getCollectionBySlug,
+  getProductsByCollection,
 } from "./data/mock-products";

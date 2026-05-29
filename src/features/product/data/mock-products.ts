@@ -320,3 +320,58 @@ export function getProductsByCategorySlug(slug: string): Product[] {
   if (!category) return [];
   return FEATURED_PRODUCTS.filter((p) => p.category === category.name);
 }
+
+/* ── Collection Utilities ───────────────────────────────────── */
+
+/** Describes a browsable collection page */
+export interface CollectionMeta {
+  slug: string;
+  title: string;
+  description: string;
+  filter: (product: Product) => boolean;
+}
+
+/** Registry of all valid collections */
+export const COLLECTIONS: CollectionMeta[] = [
+  {
+    slug: "all",
+    title: "All Products",
+    description:
+      "Browse the full AKSIAN catalog — every 1-of-1 piece we've curated.",
+    filter: () => true,
+  },
+  {
+    slug: "new",
+    title: "New Drops",
+    description: "The latest additions to the rack. Fresh finds, just landed.",
+    filter: (p) => p.badge === "new",
+  },
+  {
+    slug: "sale",
+    title: "On Sale",
+    description:
+      "Marked-down gems — same quality, better price. Won't last long.",
+    filter: (p) => p.badge === "sale" || p.compareAtPrice !== undefined,
+  },
+  {
+    slug: "archive",
+    title: "Archive",
+    description:
+      "Previously available pieces that have found new homes. Browse the history.",
+    filter: (p) => p.soldOut === true || p.badge === "soldOut",
+  },
+];
+
+/** Look up a single collection by its URL slug */
+export function getCollectionBySlug(
+  slug: string
+): CollectionMeta | undefined {
+  return COLLECTIONS.find((c) => c.slug === slug);
+}
+
+/** Get products for a given collection slug */
+export function getProductsByCollection(slug: string): Product[] {
+  const collection = getCollectionBySlug(slug);
+  if (!collection) return [];
+  return FEATURED_PRODUCTS.filter(collection.filter);
+}
